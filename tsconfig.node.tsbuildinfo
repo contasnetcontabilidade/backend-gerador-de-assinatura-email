@@ -1,0 +1,1 @@
+{"root":["./src/cloudinary/config/index.ts","./src/controller/controler.ts","./src/database/config/index.ts","./src/middleware/multer.ts","./src/model/model.ts","./src/routes/routes.ts","./src/server/index.ts","./src/services/services.ts","./src/types/templatestypes.ts","./src/types/userstypes.ts"],"errors":true,"version":"5.9.3"}
