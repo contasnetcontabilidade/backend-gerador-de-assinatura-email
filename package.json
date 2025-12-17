@@ -8,7 +8,7 @@
     "dev": "ts-node-dev --respawn --transpile-only src/server/index.ts",
     "build": "tsc -b",
     "lint": "eslint .",
-    "preview": "concurrently \"vite preview\" \"node dist/server/server/index.js\"",
+    "preview": "node dist/server/server/index.js",
     "start-prod": "node dist/server/index.js",
     "build-prod": "concurrently \"npm run build\" \"npm run back\""
   },
