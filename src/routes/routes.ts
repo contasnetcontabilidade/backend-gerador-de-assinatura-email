@@ -1,5 +1,4 @@
 import { Router } from "express";
-import * as puppeteer from "puppeteer";
 import fs from "fs";
 import path from "path";
 import multer from "multer";
@@ -457,58 +456,20 @@ const buildHtml = (payload: ExportPayload) => {
 </html>`;
 };
 
-exportRouter.post("/signature", upload.single("image"), async (req, res) => {
+exportRouter.post("/signature", upload.single("image"), (req, res) => {
     const body = req.body as any;
     if (req.file && req.file.buffer) {
         body.image = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
     }
     const payload = body as ExportPayload;
-    let browser: puppeteer.Browser | null = null;
     try {
         const html = buildHtml(payload);
-
-        browser = await puppeteer.launch({
-            headless: true,
-            args: [
-                "--no-sandbox",
-                "--disable-setuid-sandbox",
-                "--disable-dev-shm-usage",
-                "--disable-extensions",
-            ],
-        });
-
-        const page = await browser.newPage();
-
-        page.setDefaultNavigationTimeout(30000);
-        page.setDefaultTimeout(30000);
-        await page.setViewport({
-            width: 1300,
-            height: 400,
-            deviceScaleFactor: 2,
-        });
-
-
-        await page.setContent(html, { waitUntil: "networkidle0", timeout: 20000 });
-
-        const element = await page.$("#signature-preview");
-        if (!element) {
-            console.warn("Elemento de preview não encontrado");
-            const buffer = await page.screenshot({ type: "png", fullPage: true });
-            res.contentType("image/png").send(buffer);
-            return;
-        }
-
-        const buffer = await element.screenshot({ type: "png", omitBackground: true });
-        res.contentType("image/png").send(buffer);
+        res.header("Content-Type", "text/html; charset=utf-8").send(html);
     } catch (error) {
-        console.error("Erro ao exportar assinatura:", error);
+        console.error("Erro ao gerar visualização da assinatura:", error);
         res.status(500).json({
-            message: "Erro ao exportar assinatura",
+            message: "Erro ao gerar visualização da assinatura",
             error: error instanceof Error ? error.message : error,
         });
-    } finally {
-        if (browser) {
-            await browser.close();
-        }
     }
 });
