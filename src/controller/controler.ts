@@ -177,6 +177,8 @@ async function loginUser(req: Request, res: Response) {
   }
 }
 
+// Templates Controllers
+
 async function createTemplate(req: Request, res: Response) {
   try {
     const files = req.files as {
@@ -297,6 +299,7 @@ async function updateTemplate(req: Request, res: Response) {
       setorColor?: string;
       iconsColor?: string;
       infoColor?: string;
+      isActive?: boolean;
     } = req.body;
     const { _id } = req.params;
     const validacaoAoMenosUmCampo =
@@ -335,6 +338,7 @@ async function updateTemplate(req: Request, res: Response) {
       backgroundId?: string;
       logoContas?: string;
       logoContasId?: string;
+      isActive?: boolean;
     } = {
       ...template,
     };
