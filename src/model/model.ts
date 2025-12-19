@@ -98,6 +98,8 @@ async function getUserById(_id: string) {
   }
 }
 
+// Template Model Functions
+
 async function createTemplate(data: {
   nome: string;
   containerBorderColor?: string;
@@ -111,6 +113,7 @@ async function createTemplate(data: {
   backgroundId?: string;
   logoContas?: string;
   logoContasId?: string;
+  isActive?: boolean;
 }) {
   try {
     const db = await connectDB();
@@ -162,6 +165,7 @@ async function updateTemplate(
     backgroundId: string;
     logoContas: string;
     logoContasId: string;
+    isActive: boolean;
   }>
 ) {
   try {
