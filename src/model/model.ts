@@ -118,7 +118,9 @@ async function createTemplate(data: {
   try {
     const db = await connectDB();
     const templateCollection = db.collection("template");
-    const result = templateCollection.insertOne(data);
+    const { isActive = true, ...rest } = data;
+    const templateData = { ...rest, isActive };
+    const result = templateCollection.insertOne(templateData);
     return result;
   } catch (error) {
     console.error("Ocorreu algum error no Model: createTemplate", error);
