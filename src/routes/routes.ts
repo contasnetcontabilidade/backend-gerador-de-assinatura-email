@@ -5,8 +5,22 @@ import multer from "multer";
 import express from "express";
 import controler from "../controller/controler";
 
+const uploadDirectory = path.resolve(process.cwd(), "uploads");
+if (!fs.existsSync(uploadDirectory)) {
+    fs.mkdirSync(uploadDirectory, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+    destination: uploadDirectory,
+    filename: (_req, file, cb) => {
+        const safeName = path.basename(file.originalname).replace(/\s+/g, "_");
+        const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+        cb(null, `${uniqueSuffix}-${safeName}`);
+    },
+});
+
 const upload = multer({
-    storage: multer.memoryStorage(),
+    storage,
     limits: { fileSize: 30 * 1024 * 1024 }, // 30MB
 });
 
