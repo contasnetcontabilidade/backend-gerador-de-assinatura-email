@@ -6,13 +6,13 @@ import cors from "cors";
 const app = express();
 
 const corsOptions = {
-  origin: "/*",
+  origin: "*",
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
+app.options("/*", cors(corsOptions));
 
 app.use(json({ limit: "30mb" }));
 
