@@ -1,11 +1,12 @@
 import { Router } from "express";
 import fs from "fs";
+import os from "os";
 import path from "path";
 import multer from "multer";
 import express from "express";
 import controler from "../controller/controler";
 
-const uploadDirectory = path.resolve(process.cwd(), "uploads");
+const uploadDirectory = path.join(os.tmpdir(), "uploads");
 if (!fs.existsSync(uploadDirectory)) {
     fs.mkdirSync(uploadDirectory, { recursive: true });
 }
