@@ -1,12 +1,18 @@
 import "dotenv/config";
-import express, { json } from "express";
-import type { Request, Response } from "express";
+import express, { json, type Request, type Response } from "express";
 import { usersRouter, templateRouter, exportRouter } from "../routes/routes";
 import cors from "cors";
 
 const app = express();
 
-app.use(cors());
+const corsOptions = {
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 app.use(json({ limit: "30mb" }));
 
