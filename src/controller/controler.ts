@@ -7,7 +7,7 @@ import bcrypt from "bcrypt";
 import type { User } from "../types/usersTypes";
 import model from "../model/model";
 import { deleteFromCloudinary, deleteLocalFile } from "../services/services";
-//
+// inicio controller Usuário
 async function createUser(req: Request, res: Response) {
   try {
     const {
@@ -74,7 +74,6 @@ async function getAllUsersOrByName(req: Request, res: Response) {
 }
 
 async function updateUser(req: Request, res: Response) {
-  // Criar endpoint ✔️
   try {
     const { _id } = req.params;
     const { nome, password }: { nome: string; password: string } = req.body;
@@ -117,7 +116,6 @@ async function updateUser(req: Request, res: Response) {
 }
 
 async function deleteUser(req: Request, res: Response) {
-  // Criar endpoint ✔️
   try {
     const { _id } = req.params;
     if (!_id) {
@@ -139,7 +137,6 @@ async function deleteUser(req: Request, res: Response) {
 }
 
 async function loginUser(req: Request, res: Response) {
-  // Criar endpoint ✔️
   try {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -176,6 +173,8 @@ async function loginUser(req: Request, res: Response) {
       .json({ message: "Ocorreu algum erro ao realizar o Login" });
   }
 }
+
+// Fim controller Usuário
 
 // Templates Controllers
 
@@ -412,6 +411,8 @@ async function deleteTemplate(req: Request, res: Response) {
       .json({ message: "Ocorreu algum erro ao tentar deletar o template" });
   }
 }
+
+// fim Templates Controllers
 
 export default {
   createTemplate,

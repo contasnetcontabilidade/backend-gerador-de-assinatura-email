@@ -8,23 +8,23 @@ import controler from "../controller/controler";
 
 const uploadDirectory = path.join(os.tmpdir(), "uploads");
 if (!fs.existsSync(uploadDirectory)) {
-    fs.mkdirSync(uploadDirectory, { recursive: true });
+  fs.mkdirSync(uploadDirectory, { recursive: true });
 }
 
 const storage = multer.diskStorage({
-    destination: uploadDirectory,
-    filename: (_req, file, cb) => {
-        const safeName = path.basename(file.originalname).replace(/\s+/g, "_");
-        const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-        cb(null, `${uniqueSuffix}-${safeName}`);
-    },
+  destination: uploadDirectory,
+  filename: (_req, file, cb) => {
+    const safeName = path.basename(file.originalname).replace(/\s+/g, "_");
+    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+    cb(null, `${uniqueSuffix}-${safeName}`);
+  },
 });
 
 const upload = multer({
-    storage,
-    limits: { fileSize: 30 * 1024 * 1024 }, // 30MB
+  storage,
+  limits: { fileSize: 30 * 1024 * 1024 }, // 30MB
 });
-
+// Inicio rota de usuário
 export const usersRouter = express.Router();
 
 usersRouter.post("/register", controler.createUser);
@@ -38,159 +38,174 @@ usersRouter.put("/update/:_id", controler.updateUser);
 usersRouter.delete("/delete/:_id", controler.deleteUser);
 
 usersRouter.post("/login", controler.loginUser);
+// Fim rota de usuário
 
+// Inicio rota de template
 export const templateRouter = express.Router();
 
 templateRouter.post(
-    "/create",
-    upload.fields([
-        { name: "backgroundImg", maxCount: 1 },
-        { name: "logoContas", maxCount: 1 },
-    ]),
-    controler.createTemplate
+  "/create",
+  upload.fields([
+    { name: "backgroundImg", maxCount: 1 },
+    { name: "logoContas", maxCount: 1 },
+  ]),
+  controler.createTemplate
 );
 
 templateRouter.get("/", controler.getAllTemplatesOrById);
 templateRouter.get("/:_id", controler.getAllTemplatesOrById);
 
 templateRouter.put(
-    "/update/:_id",
-    upload.fields([
-        { name: "backgroundImg", maxCount: 1 },
-        { name: "logoContas", maxCount: 1 },
-    ]),
-    controler.updateTemplate
+  "/update/:_id",
+  upload.fields([
+    { name: "backgroundImg", maxCount: 1 },
+    { name: "logoContas", maxCount: 1 },
+  ]),
+  controler.updateTemplate
 );
 
 templateRouter.delete("/delete/:_id", controler.deleteTemplate);
+// Fim rota de template
 
 export const exportRouter = Router();
 
 const DEFAULT_BLUE = "#0455A2";
 const DEFAULT_GREEN = "#12A84E";
 const DEFAULT_LOGO_PATHS = [
-    path.resolve(process.cwd(), "src/assets/logo.png"),
-    path.resolve(__dirname, "../../../src/assets/logo.png"),
+  path.resolve(process.cwd(), "src/assets/logo.png"),
+  path.resolve(__dirname, "../../../src/assets/logo.png"),
 ];
 
 const defaultLogoDataUri = (() => {
-    for (const logoPath of DEFAULT_LOGO_PATHS) {
-        if (fs.existsSync(logoPath)) {
-            const base64 = fs.readFileSync(logoPath).toString("base64");
-            return `data:image/png;base64,${base64}`;
-        }
+  for (const logoPath of DEFAULT_LOGO_PATHS) {
+    if (fs.existsSync(logoPath)) {
+      const base64 = fs.readFileSync(logoPath).toString("base64");
+      return `data:image/png;base64,${base64}`;
     }
-    return null;
+  }
+  return null;
 })();
 
 interface ExportPayload {
-    name?: string | null;
-    email?: string | null;
-    sector?: string | null;
-    userId?: string | null;
-    image?: string | null;
-    imageZoom?: number;
-    imageOffsetX?: number;
-    imageOffsetY?: number;
-    backgroundImage?: string | null;
-    containerBorderColor?: string | null;
-    imageBorderColor?: string | null;
-    divisionBarColor?: string | null;
-    collaboratorNameColor?: string | null;
-    sectorNameColor?: string | null;
-    collaboratorInfosColor?: string | null;
-    contasLogo?: string | null;
-    iconsColor?: string | null;
-    showTitle?: boolean;
+  name?: string | null;
+  email?: string | null;
+  sector?: string | null;
+  userId?: string | null;
+  image?: string | null;
+  imageZoom?: number;
+  imageOffsetX?: number;
+  imageOffsetY?: number;
+  backgroundImage?: string | null;
+  containerBorderColor?: string | null;
+  imageBorderColor?: string | null;
+  divisionBarColor?: string | null;
+  collaboratorNameColor?: string | null;
+  sectorNameColor?: string | null;
+  collaboratorInfosColor?: string | null;
+  contasLogo?: string | null;
+  iconsColor?: string | null;
+  showTitle?: boolean;
 }
 
 const escapeHtml = (input: string) =>
-    input
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+  input
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 
 // CORREÇÃO 1: Melhorar lógica de gradiente para não duplicar listas de cores
 const toGradient = (value: string | null | undefined, fallback: string) => {
-    if (!value) return `linear-gradient(${fallback}, ${fallback})`;
-    return value.includes("gradient")
-        ? value
-        : `linear-gradient(${value}, ${value})`;
+  if (!value) return `linear-gradient(${fallback}, ${fallback})`;
+  return value.includes("gradient")
+    ? value
+    : `linear-gradient(${value}, ${value})`;
 };
 
 const extractColors = (value: string | null | undefined): string[] => {
-    if (!value) return [DEFAULT_BLUE, DEFAULT_GREEN];
-    const matches = value.match(/(#[0-9a-fA-F]{3,8}|rgba?\([^)]+\))/g);
-    if (matches && matches.length > 0) return matches;
-    return [value];
+  if (!value) return [DEFAULT_BLUE, DEFAULT_GREEN];
+  const matches = value.match(/(#[0-9a-fA-F]{3,8}|rgba?\([^)]+\))/g);
+  if (matches && matches.length > 0) return matches;
+  return [value];
 };
 
 const buildStopList = (colors: string[]): string => {
-    const stops = colors.length === 1 ? [colors[0], colors[0]] : colors;
-    return stops
-        .map((color, idx) => {
-            const offset = stops.length === 1 ? 1 : idx / (stops.length - 1);
-            return `<stop offset="${offset}" stop-color="${color}" />`;
-        })
-        .join("");
+  const stops = colors.length === 1 ? [colors[0], colors[0]] : colors;
+  return stops
+    .map((color, idx) => {
+      const offset = stops.length === 1 ? 1 : idx / (stops.length - 1);
+      return `<stop offset="${offset}" stop-color="${color}" />`;
+    })
+    .join("");
 };
 
 const buildHtml = (payload: ExportPayload) => {
-    const name = escapeHtml(payload.name ?? "");
-    const email = escapeHtml(payload.email ?? "");
-    const sector = escapeHtml(payload.sector ?? "");
-    const userId = escapeHtml(payload.userId ?? "");
+  const name = escapeHtml(payload.name ?? "");
+  const email = escapeHtml(payload.email ?? "");
+  const sector = escapeHtml(payload.sector ?? "");
+  const userId = escapeHtml(payload.userId ?? "");
 
-    const nameDisplay = name || "Nome e 1° sobrenome";
-    const emailDisplay = email || "E-mail";
-    const sectorDisplay = sector || "Setor";
-    const ramalDisplay = userId || "XXX";
+  const nameDisplay = name || "Nome e 1° sobrenome";
+  const emailDisplay = email || "E-mail";
+  const sectorDisplay = sector || "Setor";
+  const ramalDisplay = userId || "XXX";
 
-    const backgroundImage = payload.backgroundImage ? `url('${payload.backgroundImage}')` : "none";
+  const backgroundImage = payload.backgroundImage
+    ? `url('${payload.backgroundImage}')`
+    : "none";
 
-    // CORREÇÃO: Fallbacks ajustados para garantir string limpa
-    const containerBorder = toGradient(payload.containerBorderColor, DEFAULT_BLUE);
+  // CORREÇÃO: Fallbacks ajustados para garantir string limpa
+  const containerBorder = toGradient(
+    payload.containerBorderColor,
+    DEFAULT_BLUE
+  );
 
-    // Ajuste aqui: se o payload vier vazio, passamos as cores explicitamente para evitar "linear-gradient(blue, green, blue, green)"
-    const imageBorderRaw = payload.imageBorderColor || `${DEFAULT_BLUE}, ${DEFAULT_GREEN}`;
-    const imageBorder = imageBorderRaw.includes("gradient") ? imageBorderRaw : `linear-gradient(${imageBorderRaw}, ${imageBorderRaw})`;
+  // Ajuste aqui: se o payload vier vazio, passamos as cores explicitamente para evitar "linear-gradient(blue, green, blue, green)"
+  const imageBorderRaw =
+    payload.imageBorderColor || `${DEFAULT_BLUE}, ${DEFAULT_GREEN}`;
+  const imageBorder = imageBorderRaw.includes("gradient")
+    ? imageBorderRaw
+    : `linear-gradient(${imageBorderRaw}, ${imageBorderRaw})`;
 
-    const divisionBarRaw = payload.divisionBarColor || `${DEFAULT_GREEN}, ${DEFAULT_BLUE}`;
-    const divisionBar = divisionBarRaw.includes("gradient") ? divisionBarRaw : `linear-gradient(${divisionBarRaw}, ${divisionBarRaw})`;
+  const divisionBarRaw =
+    payload.divisionBarColor || `${DEFAULT_GREEN}, ${DEFAULT_BLUE}`;
+  const divisionBar = divisionBarRaw.includes("gradient")
+    ? divisionBarRaw
+    : `linear-gradient(${divisionBarRaw}, ${divisionBarRaw})`;
 
-    const nameColor = payload.collaboratorNameColor ?? "#000000";
-    const sectorColor = payload.sectorNameColor ?? "#000000";
-    const iconColors = extractColors(payload.iconsColor);
-    const iconStops = buildStopList(iconColors);
-    const iconStart = iconColors[0] ?? DEFAULT_BLUE;
-    const iconEnd = iconColors[1] ?? iconStart;
+  const nameColor = payload.collaboratorNameColor ?? "#000000";
+  const sectorColor = payload.sectorNameColor ?? "#000000";
+  const iconColors = extractColors(payload.iconsColor);
+  const iconStops = buildStopList(iconColors);
+  const iconStart = iconColors[0] ?? DEFAULT_BLUE;
+  const iconEnd = iconColors[1] ?? iconStart;
 
-    const iconStopsDetailed = `<stop stop-color="${iconStart}" />` +
-        `<stop offset="0.16" stop-color="${iconEnd}" />` +
-        `<stop offset="0.75" stop-color="${iconStart}" />` +
-        `<stop offset="1" stop-color="${iconEnd}" />`;
+  const iconStopsDetailed =
+    `<stop stop-color="${iconStart}" />` +
+    `<stop offset="0.16" stop-color="${iconEnd}" />` +
+    `<stop offset="0.75" stop-color="${iconStart}" />` +
+    `<stop offset="1" stop-color="${iconEnd}" />`;
 
-    const infoColor = payload.collaboratorInfosColor ?? iconStart ?? "#ffffff";
+  const infoColor = payload.collaboratorInfosColor ?? iconStart ?? "#ffffff";
 
-    const photo = payload.image
-        ? `url('${payload.image}')`
-        : "linear-gradient(120deg, #222, #444)";
+  const photo = payload.image
+    ? `url('${payload.image}')`
+    : "linear-gradient(120deg, #222, #444)";
 
-    const imageZoom = Math.max(payload.imageZoom ?? 150, 50);
-    const offsetX = payload.imageOffsetX ?? 50;
-    const offsetY = payload.imageOffsetY ?? 50;
+  const imageZoom = Math.max(payload.imageZoom ?? 150, 50);
+  const offsetX = payload.imageOffsetX ?? 50;
+  const offsetY = payload.imageOffsetY ?? 50;
 
-    const logoSrc = payload.contasLogo || defaultLogoDataUri;
-    const logoImg = logoSrc ? `<img src="${logoSrc}" alt="Logo" />` : "";
+  const logoSrc = payload.contasLogo || defaultLogoDataUri;
+  const logoImg = logoSrc ? `<img src="${logoSrc}" alt="Logo" />` : "";
 
-    const titleBlock =
-        payload.showTitle === false
-            ? ""
-            : `<h2 class="preview-title">Pre-visualizacao</h2>`;
+  const titleBlock =
+    payload.showTitle === false
+      ? ""
+      : `<h2 class="preview-title">Pre-visualizacao</h2>`;
 
-    return `<!doctype html>
+  return `<!doctype html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -472,19 +487,21 @@ const buildHtml = (payload: ExportPayload) => {
 };
 
 exportRouter.post("/signature", upload.single("image"), (req, res) => {
-    const body = req.body as any;
-    if (req.file && req.file.buffer) {
-        body.image = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
-    }
-    const payload = body as ExportPayload;
-    try {
-        const html = buildHtml(payload);
-        res.header("Content-Type", "text/html; charset=utf-8").send(html);
-    } catch (error) {
-        console.error("Erro ao gerar visualização da assinatura:", error);
-        res.status(500).json({
-            message: "Erro ao gerar visualização da assinatura",
-            error: error instanceof Error ? error.message : error,
-        });
-    }
+  const body = req.body as any;
+  if (req.file && req.file.buffer) {
+    body.image = `data:${req.file.mimetype};base64,${req.file.buffer.toString(
+      "base64"
+    )}`;
+  }
+  const payload = body as ExportPayload;
+  try {
+    const html = buildHtml(payload);
+    res.header("Content-Type", "text/html; charset=utf-8").send(html);
+  } catch (error) {
+    console.error("Erro ao gerar visualização da assinatura:", error);
+    res.status(500).json({
+      message: "Erro ao gerar visualização da assinatura",
+      error: error instanceof Error ? error.message : error,
+    });
+  }
 });

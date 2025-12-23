@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb";
 import { connectDB } from "../database/config";
-
+// Inicio model Usuário
 async function createUser(data: {
   nome: string;
   email: string;
@@ -97,6 +97,8 @@ async function getUserById(_id: string) {
     throw error;
   }
 }
+
+// Fim model Usuário
 
 // Template Model Functions
 
@@ -195,6 +197,8 @@ async function deleteTemplate(_id: string) {
     throw error;
   }
 }
+
+// Fim model Template
 
 export default {
   createUser,
